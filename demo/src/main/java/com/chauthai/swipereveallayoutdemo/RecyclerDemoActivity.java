@@ -55,11 +55,11 @@ public class RecyclerDemoActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private List<String> createList(int n) {
-        List<String> list = new ArrayList<>();
+    private List<Model> createList(int n) {
+        List<Model> list = new ArrayList<>();
 
         for (int i = 0; i < n; i++) {
-            list.add("View " + i);
+            list.add(new Model("View " + i));
         }
 
         return list;

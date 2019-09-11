@@ -20,13 +20,15 @@ import java.util.List;
  * Created by Chau Thai on 4/8/16.
  */
 public class RecyclerAdapter extends RecyclerView.Adapter {
-    private List<String> mDataSet = new ArrayList<>();
+    private List<Model> mDataSet = new ArrayList<>();
     private LayoutInflater mInflater;
     private Context mContext;
     private final ViewBinderHelper binderHelper = new ViewBinderHelper();
 
+    private int previusPosition = -1;
 
-    public RecyclerAdapter(Context context, List<String> dataSet) {
+
+    public RecyclerAdapter(Context context, List<Model> dataSet) {
         mContext = context;
         mDataSet = dataSet;
         mInflater = LayoutInflater.from(context);
@@ -46,14 +48,39 @@ public class RecyclerAdapter extends RecyclerView.Adapter {
         final ViewHolder holder = (ViewHolder) h;
 
         if (mDataSet != null && 0 <= position && position < mDataSet.size()) {
-            final String data = mDataSet.get(position);
+            final Model data = mDataSet.get(position);
 
             // Use ViewBindHelper to restore and save the open/close state of the SwipeRevealView
             // put an unique string id as value, can be any string which uniquely define the data
-            binderHelper.bind(holder.swipeLayout, data);
+            binderHelper.bind(holder.swipeLayout, String.valueOf(position));
 
             // Bind your data here
             holder.bind(data);
+
+            holder.swipeLayout.setTag(position);
+            holder.swipeLayout.setSwipeListener(new SwipeRevealLayout.SwipeListener() {
+                @Override
+                public void onClosed(SwipeRevealLayout view) {
+                }
+
+                @Override
+                public void onOpened(SwipeRevealLayout view) {
+                    int viewPosition = (Integer) view.getTag();
+                    previusPosition = viewPosition;
+                }
+
+                @Override
+                public void onSlide(SwipeRevealLayout view, float slideOffset) {
+
+                }
+
+                @Override
+                public void onStart(SwipeRevealLayout view) {
+                    int viewPosition = (Integer) view.getTag();
+                    if (previusPosition >= 0 && previusPosition != viewPosition)
+                        binderHelper.closeLayout(String.valueOf(previusPosition));
+                }
+            });
         }
     }
 
@@ -94,7 +121,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter {
             textView = (TextView) itemView.findViewById(R.id.text);
         }
 
-        public void bind(final String data) {
+        public void bind(final Model data) {
             deleteLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -103,7 +130,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter {
                 }
             });
 
-            textView.setText(data);
+            textView.setText(data.getTitle());
 
             frontLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
